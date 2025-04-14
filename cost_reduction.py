@@ -82,7 +82,7 @@ print('正在读取财务核价')
 financial_price = pd.read_excel(r'input\财务核价物料清单.xlsx')
 financial_price = financial_price[['SAP物料编码','财务核价']].rename(columns={'SAP物料编码':'物料编码'}).drop_duplicates(subset=['物料编码'])
 
-
+#%%
 print('正在读取大表最低价')
 big_table_price1 = pd.read_excel(r'input\大表价格-wk1.xlsx')
 big_table_price1 = big_table_price1.rename(columns={'SAP物料编码':'物料编码'})
@@ -92,8 +92,9 @@ print('正在处理大表价格-wk1的筛选...')
 # 重置价格
 big_table_price1 = big_table_price1.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'价格'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-big_table_price1 = big_table_price1[(big_table_price1['供应商编码'].astype(str).str.len() != 4) | (big_table_price1['供应商编码'] == '1200')]
+big_table_price1 = big_table_price1[(big_table_price1['供应商编码'].astype(str).str.len() != 4) | (big_table_price1['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
+#%%
 today = pd.Timestamp.now().date()
 # 处理日期转换，保留9999-12-31的日期
 big_table_price1['有效期开始时间'] = pd.to_datetime(big_table_price1['有效期开始时间'], errors='coerce').dt.date
@@ -119,11 +120,10 @@ formal_price = valid_price[valid_price['价格类型'] == '正式价'].groupby('
 temp_price = valid_price[valid_price['价格类型'] == '试产价'].groupby('物料编码').first().reset_index()
 # 合并两种价格
 final_price = pd.concat([formal_price, temp_price])
-
 # 重命名价格列
 final_price = final_price.rename(columns={'价格': '最低有效价-wk1'})
 # 只保留需要的列
-big_table_price1 = final_price[['物料编码', '最低有效价-wk1']].sort_values(by='最低有效价-wk1', ascending=True).drop_duplicates(subset=['物料编码'],keep='first')
+big_table_price1 = final_price[['物料编码','价格类型','最低有效价-wk1']].sort_values(by=['物料编码','价格类型','最低有效价-wk1'], ascending=True).drop_duplicates(subset=['物料编码'],keep='first').drop(columns=['价格类型'])
 
 print('正在读取大表最低价')
 big_table_price2 = pd.read_excel(r'input\大表价格-wk2.xlsx')
@@ -134,7 +134,7 @@ print('正在处理大表价格-wk2的筛选...')
 # 重置价格
 big_table_price2 = big_table_price2.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'价格'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-big_table_price2 = big_table_price2[(big_table_price2['供应商编码'].astype(str).str.len() != 4) | (big_table_price2['供应商编码'] == '1200')]
+big_table_price2 = big_table_price2[(big_table_price2['供应商编码'].astype(str).str.len() != 4) | (big_table_price2['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 big_table_price2['有效期开始时间'] = pd.to_datetime(big_table_price2['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -163,7 +163,7 @@ final_price = pd.concat([formal_price, temp_price])
 # 重命名价格列
 final_price = final_price.rename(columns={'价格': '最低有效价-wk2'})
 # 只保留需要的列
-big_table_price2 = final_price[['物料编码', '最低有效价-wk2']].sort_values(by='最低有效价-wk2', ascending=True).drop_duplicates(subset=['物料编码'],keep='first')
+big_table_price2 = final_price[['物料编码','价格类型','最低有效价-wk2']].sort_values(by=['物料编码','价格类型','最低有效价-wk2'], ascending=True).drop_duplicates(subset=['物料编码'],keep='first').drop(columns=['价格类型'])
 
 print('正在读取大表最低价')
 big_table_price3 = pd.read_excel(r'input\大表价格-wk3.xlsx')
@@ -174,7 +174,7 @@ print('正在处理大表价格-wk3的筛选...')
 # 重置价格
 big_table_price3 = big_table_price3.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'价格'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-big_table_price3 = big_table_price3[(big_table_price3['供应商编码'].astype(str).str.len() != 4) | (big_table_price3['供应商编码'] == '1200')]
+big_table_price3 = big_table_price3[(big_table_price3['供应商编码'].astype(str).str.len() != 4) | (big_table_price3['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 big_table_price3['有效期开始时间'] = pd.to_datetime(big_table_price3['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -203,7 +203,7 @@ final_price = pd.concat([formal_price, temp_price])
 # 重命名价格列
 final_price = final_price.rename(columns={'价格': '最低有效价-wk3'})
 # 只保留需要的列
-big_table_price3 = final_price[['物料编码', '最低有效价-wk3']].sort_values(by='最低有效价-wk3', ascending=True).drop_duplicates(subset=['物料编码'],keep='first')
+big_table_price3 = final_price[['物料编码','价格类型','最低有效价-wk3']].sort_values(by=['物料编码','价格类型','最低有效价-wk3'], ascending=True).drop_duplicates(subset=['物料编码'],keep='first').drop(columns=['价格类型'])
 
 print('正在读取大表最低价')
 big_table_price4 = pd.read_excel(r'input\大表价格-wk4.xlsx')
@@ -213,7 +213,7 @@ big_table_price4 = big_table_price4.rename(columns={'SAP物料编码':'物料编
 print('正在处理大表价格-wk4的筛选...')
 # 重置价格
 big_table_price4 = big_table_price4.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'价格'})
-big_table_price4 = big_table_price4[(big_table_price4['供应商编码'].astype(str).str.len() != 4) | (big_table_price4['供应商编码'] == '1200')]
+big_table_price4 = big_table_price4[(big_table_price4['供应商编码'].astype(str).str.len() != 4) | (big_table_price4['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 big_table_price4['有效期开始时间'] = pd.to_datetime(big_table_price4['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -242,7 +242,7 @@ final_price = pd.concat([formal_price, temp_price])
 # 重命名价格列
 final_price = final_price.rename(columns={'价格': '最低有效价-wk4'})
 # 只保留需要的列
-big_table_price4 = final_price[['物料编码', '最低有效价-wk4']].sort_values(by='最低有效价-wk4', ascending=True).drop_duplicates(subset=['物料编码'],keep='first')
+big_table_price4 = final_price[['物料编码','价格类型','最低有效价-wk4']].sort_values(by=['物料编码','价格类型','最低有效价-wk4'], ascending=True).drop_duplicates(subset=['物料编码'],keep='first').drop(columns=['价格类型'])
 
 print('所有大表价格处理完成！')
 #%%
@@ -515,16 +515,18 @@ print('正在读取最低基准价...')
 min_price = pd.read_excel(r'input\大表基准价.xlsx')
 
 
-dup_material = product_bom_summary[['项目号', '物料编码', '中文名称', '单位', '中分类', '小分类', 
+dup_material = product_bom_summary[['项目号', '物料编码', '中文名称', '单位', '中分类', '小分类', '一级分类','采购',
     '1月物料预测量', '2月物料预测量', '3月物料预测量', '4月物料预测量', '5月物料预测量', '6月物料预测量',
     '7月物料预测量', '8月物料预测量', '9月物料预测量', '10月物料预测量', '11月物料预测量', '12月物料预测量']]
-
+dup_material = dup_material.rename(columns={'一级分类':'组别'})
 # 对物料编码进行分组聚合
 dup_material = dup_material.groupby('物料编码').agg({
     '中文名称': 'first',
     '单位': 'first',
     '中分类': 'first',
     '小分类': 'first',
+    '组别': 'first',
+    '采购': 'first',
     '项目号': lambda x: ','.join(x.unique()),
     '1月物料预测量': 'sum',
     '2月物料预测量': 'sum',
@@ -551,7 +553,7 @@ print('正在处理current_price-wk1的筛选...')
 # 重置价格
 current_price_wk1 = current_price_wk1.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'现价-wk1'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-current_price_wk1 = current_price_wk1[(current_price_wk1['供应商编码'].astype(str).str.len() != 4) | (current_price_wk1['供应商编码'] == '1200')]
+current_price_wk1 = current_price_wk1[(current_price_wk1['供应商编码'].astype(str).str.len() != 4) | (current_price_wk1['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 current_price_wk1['有效期开始时间'] = pd.to_datetime(current_price_wk1['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -587,7 +589,7 @@ print('正在处理current_price-wk2的筛选...')
 # 重置价格
 current_price_wk2 = current_price_wk2.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'现价-wk2'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-current_price_wk2 = current_price_wk2[(current_price_wk2['供应商编码'].astype(str).str.len() != 4) | (current_price_wk2['供应商编码'] == '1200')]
+current_price_wk2 = current_price_wk2[(current_price_wk2['供应商编码'].astype(str).str.len() != 4) | (current_price_wk2['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 current_price_wk2['有效期开始时间'] = pd.to_datetime(current_price_wk2['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -625,7 +627,7 @@ print('正在处理current_price-wk3的筛选...')
 # 重置价格
 current_price_wk3 = current_price_wk3.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'现价-wk3'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-current_price_wk3 = current_price_wk3[(current_price_wk3['供应商编码'].astype(str).str.len() != 4) | (current_price_wk3['供应商编码'] == '1200')]
+current_price_wk3 = current_price_wk3[(current_price_wk3['供应商编码'].astype(str).str.len() != 4) | (current_price_wk3['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 current_price_wk3['有效期开始时间'] = pd.to_datetime(current_price_wk3['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -664,7 +666,7 @@ print('正在处理current_price-wk4的筛选...')
 # 重置价格
 current_price_wk4 = current_price_wk4.drop(columns=['价格']).rename(columns={'最终价格(含税人民币)':'现价-wk4'})
 # 只保留供应商编码长度不为4位的，或者供应商编码=1200的
-current_price_wk4 = current_price_wk4[(current_price_wk4['供应商编码'].astype(str).str.len() != 4) | (current_price_wk4['供应商编码'] == '1200')]
+current_price_wk4 = current_price_wk4[(current_price_wk4['供应商编码'].astype(str).str.len() != 4) | (current_price_wk4['供应商编码'].astype(str) == '1200')]
 # 1. 筛选价格在有效期内的记录
 current_price_wk4['有效期开始时间'] = pd.to_datetime(current_price_wk4['有效期开始时间'], errors='coerce').dt.date
 # 对于9999-12-31的日期，先转换为字符串再处理
@@ -732,6 +734,23 @@ for week in future_weeks:
 
 
 print('DataFrame连接完成！')
+#%%
+print('修正各月预测量')
+# 确保修正配额是数值类型并处理缺失值
+result['修正配额'] = pd.to_numeric(result['修正配额'], errors='coerce').fillna(0)
+
+# 对每个月的物料预测量进行修正
+for month in range(1, 13):
+    month_col = f'{month}月物料预测量'
+    if month_col in result.columns:
+        # 将物料预测量乘以修正配额
+        result[month_col] = result.apply(
+            lambda x: x[month_col] * x['修正配额']/100 if pd.notna(x[month_col]) and x['修正配额'] >= 0 else 0,
+            axis=1
+        )
+
+print('各月物料预测量修正完成！')
+#%%
 #%%
 print('读取财务核价物料清单.xlsx')
 financial_price = pd.read_excel(r'input\财务核价物料清单.xlsx')
