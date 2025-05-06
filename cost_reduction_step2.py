@@ -420,7 +420,7 @@ for col in all_columns:
             # 从列名中提取月份数字
             month_num = int(''.join(filter(str.isdigit, col.split('月')[0])))
             # 根据月份和current_month的关系决定后缀
-            suffix = '-实际' if month_num > current_month else '-预估'
+            suffix = '-实际' if month_num < current_month else '-预估'
             # 如果列名还没有后缀，则添加后缀
             if not col.endswith('-实际') and not col.endswith('-预估'):
                 rename_dict[col] = col + suffix
@@ -444,7 +444,7 @@ new_column_order = [
 
 # 添加1-6月的列
 for month in range(1, 7):
-    suffix = '-实际' if month <= current_month else '-预估'
+    suffix = '-实际' if month < current_month else '-预估'
     month_columns = [
         f'{month}月整机数量{suffix}',
         f'{month}月生产成本{suffix}',
